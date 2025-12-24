@@ -1,0 +1,32 @@
+Package: spdgt.wos
+Title: Export Data for WOS
+Version: 0.0.1
+Authors@R: 
+    c(person(given = "Josh", family = "Nowak", email = "josh.nowak@speedgoat.io", role = c("aut", "cre")),
+      person(given = "SpeedGoat", role = c("cph", "fnd")))
+Description: This package provides functions to export data from SpeedGoat API 
+    and format it for import to the WOS database. This package is only useful 
+    to employees of Wyoming Game and Fish Department and is not intended for 
+    general consumption.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    cli,
+    dplyr,
+    rlang,
+    spdgt.sight,
+    tidyr
+Suggests: 
+    knitr,
+    mockery,
+    rmarkdown,
+    stats,
+    testthat (>= 3.0.0),
+    tibble
+Depends: 
+    R (>= 4.1.0)
+LazyData: true
+VignetteBuilder: knitr
+Config/testthat/edition: 3

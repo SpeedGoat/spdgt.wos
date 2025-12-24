@@ -1,0 +1,145 @@
+---
+title: "Extending spdgt.wos: Adding a New Species"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Extending spdgt.wos: Adding a New Species}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+The spdgt.wos package is designed to be extensible. While it currently focuses on Mule Deer, the architecture allows developers to add support for other species (e.g., Elk, Moose, Pronghorn) by following a specific set of steps.
+
+This guide outlines the five steps required to fully integrate a new species into the package.
+
+### Step 1: Create the Data Template
+The WOS database requires a specific schema for each species. You must create a "template" tibble that defines this structure (column names and types).
+
+1. Create a definition script in `data-raw/`.
+
+2. Define the empty tibble with the correct types.
+
+3. Save it to the package data.
+
+#### Example: Adding Elk
+```r
+# Define the template
+wos_elk_template <- tibble::tibble(
+  observer = character(),
+  district = integer(),
+  obs_year = integer(),
+  taxon = character(),
+  # ... Add elk-specific columns here (e.g., bull_qty, cow_qty) ...
+  bull_adult_qty = integer(),
+  cow_adult_qty = integer(),
+  calf_qty = integer()
+  # ... ensure all WOS required columns are present
+)
+
+# Save to package data
+usethis::use_data(wos_elk_template, overwrite = TRUE)
+```
+Note: Don't forget to add documentation for this new object in `R/data.R`.
+
+#### Step 2: Update Reference Data
+The `survey_types` dataset validates which survey types are allowed for a given species. You must add the valid survey types for your new species to this dataset.
+
+```r
+# 1. Load existing data
+data("survey_types", package = "spdgt.wos")
+
+# 2. Create new rows for the new species
+new_surveys <- tibble::tribble(
+  ~species, ~survey_type,   ~activity_code,
+  "Elk",    "Composition",  2,
+  "Elk",    "Trend",        9
+)
+
+# 3. Bind and save
+survey_types <- dplyr::bind_rows(survey_types, new_surveys)
+usethis::use_data(survey_types, overwrite = TRUE)
+```
+
+#### Step 3: Create the Formatting Function
+You need a dedicated function to map the raw API data to the specific WOS template you created in Step 1.
+
+Create a new function (e.g., `wos_format_elk`) and add it to `R/wos_format.R`.
+
+##### Requirements for this function:
+
+1. Accepts `x` (raw data), `observer`, `district`, and `act_code`.
+
+2. Unnests and processes the metadata columns specific to that species.
+
+3. Renames/Calculates columns to match the `wos_elk_template`.
+
+4. Returns `dplyr::bind_rows(wos_elk_template, tmp)`.
+
+```r
+wos_format_elk <- function(x, observer, district, act_code) {
+  
+  # Logic to process raw elk data
+  tmp <- x |> 
+    tidyr::unnest(.data$metadata) |> 
+    dplyr::mutate(
+      # ... map API columns to WOS columns ...
+      bull_adult_qty = as.integer(.data$adult_bulls),
+      taxon = "Elk"
+    ) 
+    # ... additional formatting ...
+
+  # Bind to the specific ELK template
+  dplyr::bind_rows(wos_elk_template, tmp)
+}
+```
+
+#### Step 4: Update Dispatch Logic
+Now that the components exist, you must tell the main wrapper functions how to use them.
+
+##### A. Update `get_template()`
+Open `R/utils.R` and add the new species to the `get_template` switch statement. This ensures `wos_export()` can handle empty returns gracefully.
+
+```r
+get_template <- function(species) {
+  switch(
+    species,
+    "Mule Deer" = wos_md_template,
+    "Elk"       = wos_elk_template,  # <--- Add this line
+    {
+      cli::cli_abort("Species {.val {species}} not currently supported.")
+    }
+  )
+}
+```
+
+##### B. Update `wos_format()`
+Open `R/wos_format.R` and add the new species to the wos_format switch statement.
+
+```r
+wos_format <- function(x, observer, district, survey_type) {
+  # ... existing setup code ...
+
+  switch(
+    sp,
+    "Mule Deer" = wos_format_md(x, observer, dstrct, act),
+    "Elk"       = wos_format_elk(x, observer, dstrct, act), # <--- Add this line
+    {
+      cli::cli_abort("Species {.val {sp}} not currently supported.")
+    }
+  )
+}
+```
+
+#### Step 5: Final Housekeeping
+1. Register Global Variables: Open R/spdgt.wos.R and add your new template object (e.g., "wos_elk_template") to the utils::globalVariables() list. This prevents R CMD check warnings.
+
+2. Document: Run `devtools::document()` to update the package documentation.
+
+3. Test: Run `devtools::check()` to ensure the new data and functions are integrated correctly.

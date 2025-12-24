@@ -1,0 +1,120 @@
+---
+title: "Introduction to spdgt.wos"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to spdgt.wos}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # PREVENTS CODE EXECUTION
+)
+```
+
+```{r setup}
+library(spdgt.wos)
+```
+
+The spdgt.wos package provides a streamlined workflow for SpeedGoat users to export survey data and format it specifically for the Wyoming Game and Fish Department's Wildlife Observation System (WOS).
+
+It handles the retrieval of data from the SpeedGoat API, validates inputs against WOS requirements, and maps the data to the strict schema required for database import.
+
+### Prerequisites
+Before using this package, ensure you can authenticated with the SpeedGoat API. You will need your username and password.
+
+### The Workflow
+There are two ways to use this package:
+
+The Direct Export: Use `wos_export()` to read and format in a single step.
+
+The Step-by-Step: Use `wos_read()` and `wos_format()` separately to inspect data before formatting.
+
+#### Method 1: Direct Export (Recommended)
+The `wos_export()` function is the primary tool for most users. It performs robust validation on your inputs (checking that the district exists, the observer name is valid, and the survey type matches the species) before attempting to download data.
+
+```{r}
+# Export Mule Deer composition data for the Paintrock unit
+mule_deer_wos <- wos_export(
+  species = "Mule Deer",
+  survey_type = "Composition",
+  analysis_unit = "Paintrock 207",
+  bio_year = 2021,              # Biological year (e.g., Winter 2021-2022 is 2021)
+  observer = "Jane Doe",        # Must be "First Last"
+  district = "Pinedale Region"  # Must match a valid WOS district
+)
+
+# Preview the formatted data
+head(mule_deer_wos)
+```
+
+If no observations are found for the specified parameters, the function will warn you and return an empty template with the correct columns, ensuring your scripts don't break.
+
+### Method 2: Step-by-Step Inspection
+If you need to verify the data before applying the WOS formatting, you can break the process into two steps.
+
+#### Step A: Read Data
+First, use `wos_read()` to pull the raw observation data. This is a wrapper around `spdgt.sight::read_entries()` with settings optimized for WOS.
+
+```{r}
+# Download raw observations
+raw_data <- wos_read(
+  species = "Mule Deer",
+  survey_type = "Composition",
+  analysis_unit = "Paintrock 207",
+  bio_year = 2021
+)
+
+# Inspect the raw data
+dplyr::glimpse(raw_data)
+```
+
+#### Step B: Format Data
+Once you are satisfied with the raw data, pass it to `wos_format()`.
+
+```{r}
+# Apply WOS formatting
+formatted_data <- wos_format(
+  x = raw_data,
+  observer = "Jane Doe",
+  district = "Pinedale Region",
+  survey_type = "Composition"
+)
+```
+
+### lookup Data
+The package includes helper datasets to ensure you provide valid inputs for district and survey_type.
+
+#### Districts
+WOS requires specific district codes. You can view the available districts and their codes using the `districts` dataset.
+
+```{r}
+data("districts", package = "spdgt.wos")
+
+# View available districts
+print(districts)
+```
+
+#### Survey Types
+Different species support different survey types. The `survey_types` dataset maps species to valid survey types and their internal WOS activity codes.
+
+```{r}
+data("survey_types", package = "spdgt.wos")
+
+# Check valid survey types for Mule Deer
+library(dplyr)
+survey_types |> 
+  filter(species == "Mule Deer")
+```
+
+### Input Requirements
+To ensure data integrity, wos_export() enforces strict formatting on specific arguments:
+
+Observer: Must be a character string in "First Last" format (e.g., "John Smith", "Mary-Anne O'Connor").
+
+Bio Year: Must be a single numeric integer (e.g., 2021).
+
+District: Must match a name found in the districts dataset exactly.

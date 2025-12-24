@@ -1,0 +1,14 @@
+#' Survey types data set
+#'
+#' A data set containing valid survey types and their associated activity codes
+#' for each species in Wildlife Observation System (WOS) surveys.
+#'
+#' @format A data frame with 2 rows and 3 variables:
+#' \describe{
+#' \item{species}{The name of the species targeted by the survey.}
+#' \item{survey_type}{The type of survey conducted.}
+#' \item{activity_code}{The activity code associated with the survey type for
+#' the species.}
+#' }
+#' @source Created from internal documentation.
+"survey_types"
