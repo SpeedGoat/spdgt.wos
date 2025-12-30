@@ -10,13 +10,10 @@
 #' @export
 wos_format <- function(x, observer, district, survey_type) {
 
-  # Get species from data
   sp <- unique(x$species)
 
-  # Get district
   dstrct <- districts[[district]]
 
-  # Get activity code from species and survey type
   act <- survey_types |>
     dplyr::filter(
       .data$species == sp,
@@ -38,41 +35,31 @@ wos_format <- function(x, observer, district, survey_type) {
 
 wos_format_md <- function(x, observer, district, act_code) {
 
-  # 1. Filter empty observations
-  # CRITICAL: We break the pipe here to assign to 'tmp'
   tmp <- x |>
     dplyr::filter(.data$total > 0)
 
-  # 2. Safety Check: If filtering removed all rows, return empty template
-  # This protects the subsequent 'unnest' and 'mutate' steps from failing
   if (nrow(tmp) == 0) {
     return(wos_md_template)
   }
 
-  # 3. Format
-  tmp <- tmp |>
-    # Fix Warning: Use string "metadata", not .data$metadata
+  out <- tmp |>
     tidyr::unnest("metadata") |>
     dplyr::mutate(
       dplyr::across(
-        dplyr::all_of(
+        dplyr::any_of(
           c("total", "males", "females", "youngs", "unclass", "juvenile_males",
             "sub_males", "adult_males", "other_males")
         ),
-        as.integer
+        \(x) as.integer(x)
       )
     ) |>
-    tidyr::replace_na(
-      list(
-        total = 0,
-        males = 0,
-        females = 0,
-        youngs = 0,
-        unclass = 0,
-        juvenile_males = 0,
-        sub_males = 0,
-        adult_males = 0,
-        other_males = 0
+    dplyr::mutate(
+      dplyr::across(
+        dplyr::any_of(
+          c("total", "males", "females", "youngs", "unclass", "juvenile_males",
+            "sub_males", "adult_males", "other_males")
+        ),
+        \(x) tidyr::replace_na(x, replace = 0)
       )
     ) |>
     dplyr::mutate(
@@ -83,22 +70,35 @@ wos_format_md <- function(x, observer, district, act_code) {
       obs_year = as.numeric(format(.data$date, "%Y")),
       obs_day = as.numeric(format(.data$date, "%d")),
       taxon = unique(.data$species),
-      # .data$ is still allowed/encouraged in mutate() for data masking
-      ma_adult_qty = .data$sub_males + .data$adult_males + .data$other_males,
+      ma_adult_qty = rowSums(
+        dplyr::pick(
+          dplyr::any_of(c("sub_males", "adult_males", "other_males"))
+        ),
+        na.rm = TRUE
+      ),
       ma_est_cnt_flag = FALSE,
       fe_est_cnt_flag = FALSE,
       un_est_cnt_flag = FALSE,
       observer_activity = act_code,
       datum = "WGS84"
     ) |>
-    # Fix Warning: Remove .data$ from rename(). Use strings or symbols.
-    dplyr::rename(
-      ma_year_qty = "juvenile_males",
-      fe_adult_qty = "females",
-      un_juv_qty = "youngs",
-      un_unk_qty = "unclass",
-      latitude = "latitude",
-      longitude = "longitude"
+    dplyr::rename_with(
+      .fn = ~ c(
+        "juvenile_males" = "ma_year_qty",
+        "females"        = "fe_adult_qty",
+        "youngs"         = "un_juv_qty",
+        "unclass"        = "un_unk_qty",
+        "latitude"       = "latitude",
+        "longitude"      = "longitude"
+      )[.],
+      .cols = dplyr::any_of(c(
+        "juvenile_males",
+        "females",
+        "youngs",
+        "unclass",
+        "latitude",
+        "longitude"
+      ))
     ) |>
     dplyr::select(
       dplyr::any_of(
@@ -111,6 +111,6 @@ wos_format_md <- function(x, observer, district, act_code) {
 
   dplyr::bind_rows(
     wos_md_template,
-    tmp
+    out
   )
 }

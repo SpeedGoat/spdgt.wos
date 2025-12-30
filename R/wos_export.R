@@ -42,7 +42,6 @@ wos_export <- function(species,
   check_string_input(district, "district")
   check_string_input(observer, "observer")
 
-  # Check bio_year is a single number
   if (!is.numeric(bio_year) || length(bio_year) != 1) {
     cli::cli_abort("{.arg bio_year} must be a single numeric year (e.g. 2021).")
   }
@@ -62,8 +61,10 @@ wos_export <- function(species,
   }
 
   valid_combo <- survey_types |>
-    dplyr::filter(.data$species == !!species,
-                  .data$survey_type == !!survey_type)
+    dplyr::filter(
+      .data$species == !!species,
+      .data$survey_type == !!survey_type
+    )
 
   if (nrow(valid_combo) == 0) {
     cli::cli_abort(
@@ -75,7 +76,6 @@ wos_export <- function(species,
     )
   }
 
-  # Read data
   data <- wos_read(
     species = species,
     survey_type = survey_type,
@@ -95,14 +95,12 @@ wos_export <- function(species,
     cli::cli_abort("Input data contains more than one species.")
   }
 
-  # Format data
   wos_format(
     x = data,
     observer = observer,
     district = district,
     survey_type = survey_type
   )
-
 }
 
 
