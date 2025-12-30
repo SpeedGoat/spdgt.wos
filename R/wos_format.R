@@ -44,6 +44,7 @@ wos_format_md <- function(x, observer, district, act_code) {
 
   out <- tmp |>
     tidyr::unnest("metadata") |>
+    tidyr::unnest(dplyr::any_of("mappings")) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::any_of(
@@ -59,7 +60,7 @@ wos_format_md <- function(x, observer, district, act_code) {
           c("total", "males", "females", "youngs", "unclass", "juvenile_males",
             "sub_males", "adult_males", "other_males")
         ),
-        \(x) tidyr::replace_na(x, replace = 0)
+        \(x) if (isTRUE(act_code == 2)) tidyr::replace_na(x, replace = 0) else x
       )
     ) |>
     dplyr::mutate(
@@ -70,12 +71,18 @@ wos_format_md <- function(x, observer, district, act_code) {
       obs_year = as.numeric(format(.data$date, "%Y")),
       obs_day = as.numeric(format(.data$date, "%d")),
       taxon = unique(.data$species),
-      ma_adult_qty = rowSums(
-        dplyr::pick(
-          dplyr::any_of(c("sub_males", "adult_males", "other_males"))
-        ),
-        na.rm = TRUE
-      ),
+      ma_adult_qty = if (isTRUE(act_code == 2)) {
+        rowSums(
+          dplyr::pick(
+            dplyr::any_of(c("sub_males", "adult_males", "other_males"))
+          ),
+          na.rm = TRUE
+        )
+      } else {
+        NA_real_
+      },
+      females = if (isTRUE(act_code == 2)) .data$females else NA_integer_,
+      youngs  = if (isTRUE(act_code == 2)) .data$youngs else NA_integer_,
       ma_est_cnt_flag = FALSE,
       fe_est_cnt_flag = FALSE,
       un_est_cnt_flag = FALSE,
