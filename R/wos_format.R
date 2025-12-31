@@ -10,6 +10,8 @@
 #' @export
 wos_format <- function(x, observer, district, survey_type) {
 
+  # Will require updating if incidental observations added later
+  # Maybe call the API or use spdgt.core::lkup_survey_types()
   sp <- unique(x$species)
 
   dstrct <- districts[[district]]
@@ -61,6 +63,13 @@ wos_format_md <- function(x, observer, district, act_code) {
             "sub_males", "adult_males", "other_males")
         ),
         \(x) if (isTRUE(act_code == 2)) tidyr::replace_na(x, replace = 0) else x
+      ),
+      dplyr::across(
+        dplyr::any_of(
+          c("total", "males", "females", "youngs", "unclass", "juvenile_males",
+            "sub_males", "adult_males", "other_males")
+        ),
+        \(x) if (isTRUE(act_code == 2)) x else NA_integer_
       )
     ) |>
     dplyr::mutate(
@@ -70,7 +79,7 @@ wos_format_md <- function(x, observer, district, act_code) {
       obs_month = as.numeric(format(.data$date, "%m")),
       obs_year = as.numeric(format(.data$date, "%Y")),
       obs_day = as.numeric(format(.data$date, "%d")),
-      taxon = unique(.data$species),
+      taxon = .data$species,
       ma_adult_qty = if (isTRUE(act_code == 2)) {
         rowSums(
           dplyr::pick(
@@ -81,8 +90,6 @@ wos_format_md <- function(x, observer, district, act_code) {
       } else {
         NA_real_
       },
-      females = if (isTRUE(act_code == 2)) .data$females else NA_integer_,
-      youngs  = if (isTRUE(act_code == 2)) .data$youngs else NA_integer_,
       ma_est_cnt_flag = FALSE,
       fe_est_cnt_flag = FALSE,
       un_est_cnt_flag = FALSE,

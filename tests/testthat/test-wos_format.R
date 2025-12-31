@@ -6,7 +6,7 @@ survey_types <- tibble::tibble(
 )
 districts <- list("Pinedale Region" = 5)
 
-test_that("wos_format: Classification (Act 2) replaces NAs with 0s", {
+test_that("wos_format: Composition (Act 2) replaces NAs with 0s", {
 
   # 1. Innermost Data (The Counts)
   fake_counts <- tibble::tibble(
