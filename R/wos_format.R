@@ -10,6 +10,8 @@
 #' @export
 wos_format <- function(x, observer, district, survey_type) {
 
+  # Will require updating if incidental observations added later
+  # Maybe call the API or use spdgt.core::lkup_survey_types()
   sp <- unique(x$species)
 
   dstrct <- districts[[district]]
@@ -44,6 +46,7 @@ wos_format_md <- function(x, observer, district, act_code) {
 
   out <- tmp |>
     tidyr::unnest("metadata") |>
+    tidyr::unnest(dplyr::any_of("mappings")) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::any_of(
@@ -59,7 +62,14 @@ wos_format_md <- function(x, observer, district, act_code) {
           c("total", "males", "females", "youngs", "unclass", "juvenile_males",
             "sub_males", "adult_males", "other_males")
         ),
-        \(x) tidyr::replace_na(x, replace = 0)
+        \(x) if (isTRUE(act_code == 2)) tidyr::replace_na(x, replace = 0) else x
+      ),
+      dplyr::across(
+        dplyr::any_of(
+          c("total", "males", "females", "youngs", "unclass", "juvenile_males",
+            "sub_males", "adult_males", "other_males")
+        ),
+        \(x) if (isTRUE(act_code == 2)) x else NA_integer_
       )
     ) |>
     dplyr::mutate(
@@ -69,13 +79,17 @@ wos_format_md <- function(x, observer, district, act_code) {
       obs_month = as.numeric(format(.data$date, "%m")),
       obs_year = as.numeric(format(.data$date, "%Y")),
       obs_day = as.numeric(format(.data$date, "%d")),
-      taxon = unique(.data$species),
-      ma_adult_qty = rowSums(
-        dplyr::pick(
-          dplyr::any_of(c("sub_males", "adult_males", "other_males"))
-        ),
-        na.rm = TRUE
-      ),
+      taxon = .data$species,
+      ma_adult_qty = if (isTRUE(act_code == 2)) {
+        rowSums(
+          dplyr::pick(
+            dplyr::any_of(c("sub_males", "adult_males", "other_males"))
+          ),
+          na.rm = TRUE
+        )
+      } else {
+        NA_real_
+      },
       ma_est_cnt_flag = FALSE,
       fe_est_cnt_flag = FALSE,
       un_est_cnt_flag = FALSE,
