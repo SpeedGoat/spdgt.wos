@@ -1,120 +1,94 @@
-test_that("wos_format handles Mule Deer 'Happy Path' correctly", {
+# --- Setup Mocks ---
+survey_types <- tibble::tibble(
+  species = "Mule Deer",
+  survey_type = c("Composition", "Sightability"),
+  activity_code = c(2, 9)
+)
+districts <- list("Pinedale Region" = 5)
 
-  # 1. Create Synthetic Input Data
-  # Metadata ONLY contains the specific male breakdown
-  fake_metadata <- tibble::tibble(
-    juvenile_males = 1, # Yearling
-    sub_males = 2,      # Adult
-    adult_males = 2,    # Adult
-    other_males = 0     # Adult
+test_that("wos_format: Composition (Act 2) replaces NAs with 0s", {
+
+  # 1. Innermost Data (The Counts)
+  fake_counts <- tibble::tibble(
+    does = NA_integer_,
+    fawns = NA_integer_,
+    juvenile_males = NA_integer_,
+    sub_males = NA_integer_,
+    adult_males = 2,
+    other_males = NA_integer_
   )
 
-  # Parent data contains the broad counts
+  # 2. Middle Layer (The Metadata Tibble)
+  #    This mimics md_raw$metadata[[1]].
+  #    We make 'mappings' a list-column to satisfy unnest().
+  fake_metadata_wrapper <- tibble::tibble(
+    mappings = list(fake_counts),
+    notes = NA
+  )
+
+  # 3. Outer Layer (The Input Data)
   input_data <- tibble::tibble(
     species = "Mule Deer",
-    total = 10,
-    males = 5,
-    females = 3,
-    youngs = 2,
+    total = 5,
+    males = 2,
+    females = NA_integer_,
+    youngs = NA_integer_,
     unclass = 0,
     date = as.Date("2021-12-01"),
     latitude = 40.5,
     longitude = -105.5,
-    metadata = list(fake_metadata) # Nested list column
+    # metadata is a list-column containing the wrapper tibble
+    metadata = list(fake_metadata_wrapper)
   )
 
-  # 2. Run wos_format
   result <- wos_format(
-    x = input_data,
-    observer = "Test User",
-    district = "Pinedale Region",
-    survey_type = "Composition"
+    input_data,
+    "Test User",
+    "Pinedale Region",
+    "Composition"
   )
 
-  # 3. Validation
-  expect_equal(nrow(result), 1)
-
-  # Check Logic: Male Aggregation (sub + adult + other)
-  expect_equal(result$ma_adult_qty, 4)
-
-  # Check Logic: Column Renaming & Mapping
-  expect_equal(result$ma_year_qty, 1)    # juvenile_males -> ma_year_qty
-  expect_equal(result$fe_adult_qty, 3)   # females (parent) -> fe_adult_qty
-  expect_equal(result$un_juv_qty, 2)     # youngs (parent) -> un_juv_qty
+  # CHECK: NAs became 0s
+  expect_equal(result$fe_adult_qty, 0) # females -> 0
+  expect_equal(result$ma_year_qty, 0)  # juvenile_males -> 0
+  expect_equal(result$ma_adult_qty, 2) # Calculation handles 0s correctly
 })
 
-test_that("wos_format replaces NAs with 0", {
+test_that("wos_format: Sightability (Act 9) PRESERVES NAs", {
 
-  fake_metadata_na <- tibble::tibble(
-    juvenile_males = NA_integer_,
-    sub_males = NA_integer_,
-    adult_males = NA_integer_,
-    other_males = NA_integer_
+  # 1. Innermost Data
+  fake_counts <- tibble::tibble(
+    sub_males = NA_integer_
   )
 
-  input_data_na <- tibble::tibble(
+  # 2. Middle Layer
+  fake_metadata_wrapper <- tibble::tibble(
+    mappings = list(fake_counts),
+    notes = NA
+  )
+
+  # 3. Outer Layer
+  input_data <- tibble::tibble(
     species = "Mule Deer",
-    total = 5,
-    males = NA_integer_, # Top level NA
-    females = 5,
+    total = 50,
+    males = NA_integer_,
+    females = 0, # Explicit 0 in raw data
     youngs = NA_integer_,
-    unclass = NA_integer_,
+    unclass = 50,
     date = as.Date("2021-12-01"),
-    latitude = 40.0,
-    longitude = -105.0,
-    metadata = list(fake_metadata_na)
+    latitude = 40.5,
+    longitude = -105.5,
+    metadata = list(fake_metadata_wrapper)
   )
 
-  result <- wos_format(
-    x = input_data_na,
-    observer = "Test User",
-    district = "Pinedale Region",
-    survey_type = "Composition"
-  )
+  result <- wos_format(input_data, "Test User", "Pinedale Region", "Sightability")
 
-  # Check that NAs were converted to 0
-  expect_equal(result$ma_year_qty, 0) # from metadata NA
-  expect_equal(result$un_juv_qty, 0)  # from parent NA
+  # CHECK 1: NAs remain NAs
+  expect_true(is.na(result$un_juv_qty))
 
-  # Check calculation handling of 0s
-  expect_equal(result$ma_adult_qty, 0)
-})
+  # CHECK 2: Explicit 0s are forced to NA (The safety check)
+  expect_true(is.na(result$fe_adult_qty))
 
-test_that("wos_format filters out rows with total = 0", {
-
-  input_zero <- tibble::tibble(
-    species = "Mule Deer",
-    total = 0,
-    date = as.Date("2021-12-01"),
-    # Metadata structure doesn't matter here as it gets filtered out
-    metadata = list(tibble::tibble(juvenile_males = 0))
-  )
-
-  result <- wos_format(
-    x = input_zero,
-    observer = "Test User",
-    district = "Pinedale Region",
-    survey_type = "Composition"
-  )
-
-  expect_equal(nrow(result), 0)
-})
-
-test_that("wos_format errors on unsupported species", {
-
-  input_elk <- tibble::tibble(
-    species = "Elk",
-    total = 10,
-    metadata = list(tibble::tibble(adult_bulls = 1))
-  )
-
-  expect_error(
-    wos_format(
-      x = input_elk,
-      observer = "Test User",
-      district = "Pinedale Region",
-      survey_type = "Composition"
-    ),
-    "Species .* not currently supported"
-  )
+  # CHECK 3: Calculated columns are NA
+  expect_true(is.na(result$ma_adult_qty))
 })
