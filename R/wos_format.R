@@ -90,9 +90,6 @@ wos_format_md <- function(x, observer, district, act_code) {
       } else {
         NA_real_
       },
-      ma_est_cnt_flag = FALSE,
-      fe_est_cnt_flag = FALSE,
-      un_est_cnt_flag = FALSE,
       observer_activity = act_code,
       datum = "WGS84"
     ) |>
