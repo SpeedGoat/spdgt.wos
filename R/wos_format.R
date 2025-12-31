@@ -36,7 +36,7 @@ wos_format <- function(x, observer, district, survey_type) {
 }
 
 wos_format_md <- function(x, observer, district, act_code) {
-
+  # This relies on the mapping being correct
   tmp <- x |>
     dplyr::filter(.data$total > 0)
 
