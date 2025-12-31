@@ -114,9 +114,8 @@ wos_format_md <- function(x, observer, district, act_code) {
     dplyr::select(
       dplyr::any_of(
         c("observer", "district", "obs_month", "obs_year", "obs_day", "taxon",
-          "ma_adult_qty", "ma_year_qty", "ma_est_cnt_flag", "fe_adult_qty",
-          "fe_est_cnt_flag", "un_juv_qty", "un_unk_qty", "un_est_cnt_flag",
-          "observer_activity", "latitude", "longitude", "datum")
+          "ma_adult_qty", "ma_year_qty", "fe_adult_qty", "un_juv_qty",
+          "un_unk_qty", "observer_activity", "latitude", "longitude", "datum")
       )
     )
 
