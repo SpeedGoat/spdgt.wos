@@ -42,12 +42,14 @@
 #' )
 #' }
 wos_read <- function(species, survey_type, analysis_unit, bio_year) {
+
   spdgt.sight::read_entries(
     species = species,
     survey_type = survey_type,
     analysis_unit = analysis_unit,
     bio_year = bio_year,
-    is_target_species = TRUE,
+    is_target_species = TRUE, # Subject of debate
     pages = list("omit" = 1)
   )
+
 }
