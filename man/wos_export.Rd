@@ -10,7 +10,7 @@ wos_export(species, survey_type, analysis_unit, bio_year, observer, district)
 \item{species}{the name of the species targeted by the survey}
 
 \item{survey_type}{the type of survey conducted; must match one of the
-survey types in the \code{survey_types} data set for the species}
+survey types in the \code{survey_types} data set}
 
 \item{analysis_unit}{the name of the analysis unit surveyed}
 

@@ -14,7 +14,7 @@ wos_format(x, observer, district, survey_type)
 \item{district}{the district name as found in the \code{districts} data set}
 
 \item{survey_type}{the type of survey conducted; must match one of the
-survey types in the \code{survey_types} data set for the species in \code{x}}
+survey types in the \code{survey_types} data set}
 }
 \value{
 A data frame formatted for WOS import

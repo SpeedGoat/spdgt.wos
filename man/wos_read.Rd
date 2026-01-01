@@ -10,7 +10,7 @@ wos_read(species, survey_type, analysis_unit, bio_year)
 \item{species}{the name of the species targeted by the survey}
 
 \item{survey_type}{the type of survey conducted; must match one of the
-survey types in the \code{survey_types} data set for the species}
+survey types in the \code{survey_types} data set}
 
 \item{analysis_unit}{the name of the analysis unit surveyed}
 
@@ -30,16 +30,8 @@ certain options hard-coded for Wildlife Observation System (WOS) data.
 When the user is uncertain about the survey type it is recommended to
 use the spdgt.core function \code{spdgt.core::lkup_survey_types()} to view the
 names of the survey types that can be used. Similarly, the user can lookup
-analysis units using \code{spdgt.core::lkup_dau()}. Species names can be found
-using \code{spdgt.core::lkup_species()}. For all of these arguments the name is
-what is required as an input.
-
-Note that \code{spdgt.sight::read_entries()} has an argument called
-\code{is_target_species}, which is set to \code{TRUE} in this function. This means that
-only observations of the target species for the survey will be returned. The
-target species is mule deer if it is a mule deer survey type and so
-observations of other animals (e.g. moose) will be removed prior to returning
-the data to the user.
+analysis units using \code{spdgt.core::lkup_dau()}. For all of these arguments
+the name is  what is required as an input.
 
 If the desire is to view observations data it is recommended to just use
 \code{spdgt.sight::read_entries()} directly so that the user can set the various
