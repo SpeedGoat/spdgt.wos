@@ -53,7 +53,7 @@ test_that("wos_export validates survey configuration (Species/Type match)", {
       observer = "Jane Doe",
       district = "Pinedale Region"
     ),
-    "Invalid survey configuration"
+    "Survey type .* not found"
   )
 })
 
@@ -76,11 +76,40 @@ test_that("wos_export handles empty data gracefully", {
       observer = "Jane Doe",
       district = "Pinedale Region"
     ),
-    "No observations found"
+    "Empty dataset provided"
   )
 
   # 4. Expect the empty template to be returned
-  expect_equal(result, wos_md_template)
+  expect_equal(result, wos_template)
+
+  # 5. Verify the mock was called
+  mockery::expect_called(m_read, 1)
+})
+
+test_that("wos_export handles unexpected data gracefully", {
+
+  # 1. Create a mock for wos_read that returns an empty dataframe
+  m_read <- mockery::mock(iris)
+
+  # 2. Stub wos_read inside wos_export
+  mockery::stub(wos_export, "wos_read", m_read)
+
+  # 3. Run wos_export
+  # Expect a warning about no observations
+  expect_warning(
+    result <- wos_export(
+      species = "Mule Deer",
+      survey_type = "Composition",
+      analysis_unit = "Unit 1",
+      bio_year = 2021,
+      observer = "Jane Doe",
+      district = "Pinedale Region"
+    ),
+    "Missing column"
+  )
+
+  # 4. Expect the empty template to be returned
+  expect_equal(result, wos_template)
 
   # 5. Verify the mock was called
   mockery::expect_called(m_read, 1)
@@ -98,6 +127,7 @@ test_that("wos_export integrates read and format correctly (Happy Path)", {
 
   fake_data <- tibble::tibble(
     species = "Mule Deer",
+    is_target_species = TRUE,
     total = 10,
     males = 5,
     females = 3,
@@ -130,6 +160,6 @@ test_that("wos_export integrates read and format correctly (Happy Path)", {
 
   # 5. Verify Mock was called with correct arguments
   args <- mockery::mock_args(m_read)[[1]]
-  expect_equal(args$species, "Mule Deer")
-  expect_equal(args$bio_year, 2021)
+  expect_equal(args[[1]], "Mule Deer")
+  expect_equal(args[[4]], 2021)
 })

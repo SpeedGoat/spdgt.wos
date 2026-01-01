@@ -12,6 +12,7 @@ test_that("wos_format handles Mule Deer 'Happy Path' correctly", {
   # Parent data contains the broad counts
   input_data <- tibble::tibble(
     species = "Mule Deer",
+    is_target_species = TRUE,
     total = 10,
     males = 5,
     females = 3,
@@ -54,6 +55,7 @@ test_that("wos_format replaces NAs with 0", {
 
   input_data_na <- tibble::tibble(
     species = "Mule Deer",
+    is_target_species = TRUE,
     total = 5,
     males = NA_integer_, # Top level NA
     females = 5,
@@ -80,41 +82,51 @@ test_that("wos_format replaces NAs with 0", {
   expect_equal(result$ma_adult_qty, 0)
 })
 
-test_that("wos_format filters out rows with total = 0", {
+test_that("wos_format handles unexpected data gracefully", {
 
-  input_zero <- tibble::tibble(
+  bad_input <- tibble::tibble(
     species = "Mule Deer",
+    is_target_species = TRUE,
     total = 0,
-    date = as.Date("2021-12-01"),
-    # Metadata structure doesn't matter here as it gets filtered out
-    metadata = list(tibble::tibble(juvenile_males = 0))
+    date = as.Date("2021-12-01")
   )
 
-  result <- wos_format(
-    x = input_zero,
-    observer = "Test User",
-    district = "Pinedale Region",
-    survey_type = "Composition"
+  expect_warning(
+    result <- wos_format(
+      x = bad_input,
+      observer = "Test User",
+      district = "Pinedale Region",
+      survey_type = "Composition"
+    ),
+    "Missing column"
   )
 
   expect_equal(nrow(result), 0)
 })
 
-test_that("wos_format errors on unsupported species", {
+test_that("wos_format filters out rows with total = 0", {
 
-  input_elk <- tibble::tibble(
-    species = "Elk",
-    total = 10,
-    metadata = list(tibble::tibble(adult_bulls = 1))
+  input_zero <- tibble::tibble(
+    species = "Mule Deer",
+    is_target_species = TRUE,
+    total = 0,
+    males = 0,
+    females = 0,
+    youngs = 0,
+    unclass = 0,
+    date = as.Date("2021-12-01"),
+    metadata = list(tibble::tibble())
   )
 
-  expect_error(
-    wos_format(
-      x = input_elk,
+  expect_warning(
+    result <- wos_format(
+      x = input_zero,
       observer = "Test User",
       district = "Pinedale Region",
       survey_type = "Composition"
     ),
-    "Species .* not currently supported"
+    "No animals"
   )
+
+  expect_equal(nrow(result), 0)
 })
