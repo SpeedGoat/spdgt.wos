@@ -61,48 +61,14 @@ wos_export <- function(species,
     )
   }
 
-  valid_combo <- survey_types |>
-    dplyr::filter(.data$species == !!species,
-                  .data$survey_type == !!survey_type)
-
-  if (nrow(valid_combo) == 0) {
+  if (!survey_type %in% survey_types$survey_type) {
     cli::cli_abort(
-      c("Invalid survey configuration.",
-        "x" = "Survey type {.val {survey_type}} is not defined for species
-        {.val {species}}.",
-        "i" = "Check the {.code survey_types} dataset for valid combinations."
-        )
+      c("Survey type {.val {survey_type}} not found.",
+        "i" = "Available survey_types are in the {.code survey_types} dataset.")
     )
   }
 
-  # Read data
-  data <- wos_read(
-    species = species,
-    survey_type = survey_type,
-    analysis_unit = analysis_unit,
-    bio_year = bio_year
-  )
-
-  if (nrow(data) == 0) {
-    cli::cli_warn(
-      "No observations found for these parameters. Returning empty frame."
-    )
-
-    return(get_template(species))
-  }
-
-  if (length(unique(data$species)) > 1) {
-    cli::cli_abort("Input data contains more than one species.")
-  }
-
-  # Format data
-  wos_format(
-    x = data,
-    observer = observer,
-    district = district,
-    survey_type = survey_type
-  )
+  wos_read(species, survey_type, analysis_unit, bio_year) |>
+    wos_format(observer, district, survey_type)
 
 }
-
-
