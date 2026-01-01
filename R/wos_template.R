@@ -1,8 +1,8 @@
-#' WOS Mule Deer Data Template
+#' WOS Data Template
 #'
-#' A tibble defining the schema required for importing Mule Deer survey data
-#' into the WOS (Wildlife Observation System). This empty template ensures that
-#' all necessary columns are present and correctly typed before data entry.
+#' A tibble defining the schema required for importing survey data into the WOS
+#' (Wildlife Observation System). This empty template ensures that all necessary
+#' columns are present and correctly typed before data entry.
 #'
 #' @format A tibble with 0 rows and 47 variables:
 #' \describe{
@@ -11,7 +11,7 @@
 #'   \item{obs_month}{integer. Month of observation (MM).}
 #'   \item{obs_year}{integer. Year of observation (YYYY).}
 #'   \item{obs_day}{integer. Day of observation (DD).}
-#'   \item{taxon}{character. Common name of the species observed.}
+#'   \item{taxon}{character. Common or scientific name of the species observed.}
 #'   \item{ma_adult_qty}{integer. Count of adult males.}
 #'   \item{ma_year_qty}{integer. Count of yearling males.}
 #'   \item{ma_juv_qty}{integer. Count of juvenile males.}
@@ -54,4 +54,4 @@
 #'   \item{source}{character. Data source identifier; usually blank.}
 #'   \item{field_notes}{character. Additional notes from the field; usually blank.}
 #' }
-"wos_md_template"
+"wos_template"

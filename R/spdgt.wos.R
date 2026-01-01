@@ -11,5 +11,5 @@ NULL
 utils::globalVariables(c(
   "districts",
   "survey_types",
-  "wos_md_template"
+  "wos_template"
 ))
