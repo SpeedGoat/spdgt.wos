@@ -1,6 +1,6 @@
 Package: spdgt.wos
 Title: Export Data for WOS
-Version: 0.0.1
+Version: 0.0.5
 Authors@R: 
     c(person(given = "Josh", family = "Nowak", email = "josh.nowak@speedgoat.io", role = c("aut", "cre")),
       person(given = "SpeedGoat", role = c("cph", "fnd")))
@@ -21,10 +21,12 @@ Imports:
 Suggests: 
     knitr,
     mockery,
+    openxlsx2,
     rmarkdown,
     stats,
     testthat (>= 3.0.0),
-    tibble
+    tibble,
+    withr
 Depends: 
     R (>= 4.1.0)
 LazyData: true

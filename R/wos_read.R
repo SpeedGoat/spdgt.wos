@@ -40,7 +40,7 @@ wos_read <- function(species, survey_type, analysis_unit, bio_year) {
     survey_type = survey_type
   )
 
-  spdgt.sight::read_entries_id(
+  spdgt.sight::sight_read_entries_id(
     survey_type_id = ids$survey_type_id,
     analysis_unit_id = ids$dau_id,
     bio_year = bio_year,
