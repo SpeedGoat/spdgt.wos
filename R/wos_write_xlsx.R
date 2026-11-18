@@ -50,7 +50,7 @@ wos_write_xlsx <- function(x, out_file) {
 
   # insert newline
   s1_path <- file.path(tf, "xl/worksheets/sheet1.xml")
-  rl <- readLines(s1_path)
+  rl <- suppressWarnings(readLines(s1_path)) # incomplete final line...
   rl <- sub("><worksheet", ">\r\n<worksheet", rl)
   f <- file(s1_path, open = "wb")
   cat(rl, file = f)
@@ -58,7 +58,10 @@ wos_write_xlsx <- function(x, out_file) {
 
   # rezip
   unlink(out_file)
-  withr::with_dir(tf, zip(out_file, files = list.files()))
+  withr::with_dir(
+    tf,
+    utils::zip(out_file, flags = "-qr9X", files = list.files())
+  )
   unlink(tf, recursive = TRUE)
 
   invisible(out_file)
