@@ -32,10 +32,10 @@ wos_write_xlsx <- function(x, out_file) {
 
   # check dependencies
   if (!requireNamespace("openxlsx2", quietly = TRUE)) {
-    cli::abort("package {.pkg openxlsx2} is required for saving xlsx files")
+    cli::cli_abort("package {.pkg openxlsx2} is required for saving xlsx files")
   }
   if (!requireNamespace("withr", quietly = TRUE)) {
-    cli::abort("package {.pkg withr} is required for saving xlsx files")
+    cli::cli_abort("package {.pkg withr} is required for saving xlsx files")
   }
 
   # write preliminary xlsx
@@ -46,7 +46,7 @@ wos_write_xlsx <- function(x, out_file) {
   
   # unzip
   tf <- tempfile()
-  unzip(out_file, exdir = tf)
+  utils::unzip(out_file, exdir = tf)
 
   # insert newline
   s1_path <- file.path(tf, "xl/worksheets/sheet1.xml")
