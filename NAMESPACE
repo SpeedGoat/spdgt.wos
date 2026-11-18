@@ -2,6 +2,7 @@
 
 export(wos_export)
 export(wos_format)
+export(wos_write_xlsx)
 importFrom(rlang,"!!")
 importFrom(rlang,.data)
 importFrom(rlang,.env)
