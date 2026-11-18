@@ -76,8 +76,19 @@ wos_export <- function(species,
     )
   }
 
-  out <- wos_read(species, survey_type, analysis_unit, bio_year) |>
-    wos_format(observer, district, survey_type)
+  data <- wos_read(
+    species = species,
+    survey_type = survey_type,
+    analysis_unit = analysis_unit,
+    bio_year = bio_year
+  )
+
+  out <- wos_format(
+    x = data,
+    observer = observer,
+    district = district,
+    survey_type = survey_type
+  )
 
   if (!is.null(out_file)) {
     wos_write_xlsx(out, out_file)

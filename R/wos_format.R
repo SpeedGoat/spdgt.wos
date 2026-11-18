@@ -19,13 +19,11 @@ wos_format <- function(x, observer, district, survey_type) {
     count_cols[1:5], "metadata", "species", "date", "is_target_species"
   )
 
-  # Test for empty dataset
   if (!nrow(x)) {
     cli::cli_warn("Empty dataset provided, returning empty template.")
     return(wos_template)
   }
 
-  # Test for required columns
   m_cols <- setdiff(req_cols, colnames(x))
   if (length(m_cols)) {
     cli::cli_warn(
@@ -40,7 +38,6 @@ wos_format <- function(x, observer, district, survey_type) {
     return(wos_template)
   }
 
-  # Get district
   dstrct <- districts[[district]]
 
   # Get activity code from survey type
