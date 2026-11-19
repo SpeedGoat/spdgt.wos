@@ -35,13 +35,8 @@
 #' }
 wos_read <- function(species, survey_type, analysis_unit, bio_year) {
 
-  srvy <- spdgt.core:::lkup_survey_type(
-    species_name = species,
-    survey_type_name = survey_type
-  )
-  
   spdgt.sight::sight_read_entries(
-    survey_type = srvy$name,
+    survey_type = survey_type,
     analysis_unit = analysis_unit,
     bio_year = bio_year,
     pages = list("omit" = 1)
