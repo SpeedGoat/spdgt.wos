@@ -9,7 +9,7 @@
 #' with the WOS upload web form. Calling this function when either of
 #' \code{openxslx2} or \code{withr} is not installed produces an error.
 #'
-#' @returns The path to the exported file, invisibly
+#' @returns The data passed into the function, invisibly
 #' @export
 #'
 #' @examples
@@ -30,7 +30,6 @@
 #' }
 wos_write_xlsx <- function(x, out_file) {
 
-  # check dependencies
   if (!requireNamespace("openxlsx2", quietly = TRUE)) {
     cli::cli_abort("package {.pkg openxlsx2} is required for saving xlsx files")
   }
@@ -38,32 +37,30 @@ wos_write_xlsx <- function(x, out_file) {
     cli::cli_abort("package {.pkg withr} is required for saving xlsx files")
   }
 
-  # write preliminary xlsx
+  out_path <- normalizePath(out_file, mustWork = FALSE)
+
   openxlsx2::wb_workbook() |>
     openxlsx2::wb_add_worksheet("WOS Input Sheet") |>
     openxlsx2::wb_add_data(x = x, na.strings = "", inline_strings = FALSE) |>
-    openxlsx2::wb_save(out_file)
+    openxlsx2::wb_save(out_path)
   
-  # unzip
   tf <- tempfile()
-  utils::unzip(out_file, exdir = tf)
+  utils::unzip(out_path, exdir = tf)
 
-  # insert newline
   s1_path <- file.path(tf, "xl/worksheets/sheet1.xml")
-  rl <- suppressWarnings(readLines(s1_path)) # incomplete final line...
+  rl <- suppressWarnings(readLines(s1_path))
   rl <- sub("><worksheet", ">\r\n<worksheet", rl)
   f <- file(s1_path, open = "wb")
   cat(rl, file = f)
   close(f)
 
-  # rezip
-  unlink(out_file)
+  unlink(out_path)
   withr::with_dir(
     tf,
-    utils::zip(out_file, flags = "-qr9X", files = list.files())
+    utils::zip(out_path, flags = "-qr9X", files = list.files())
   )
   unlink(tf, recursive = TRUE)
 
-  invisible(out_file)
+  invisible(x)
 
 }
