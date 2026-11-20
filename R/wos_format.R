@@ -68,8 +68,12 @@ wos_format <- function(x, observer, district, survey_type) {
       obs_year = as.numeric(format(.data$date, "%Y")),
       obs_day = as.numeric(format(.data$date, "%d")),
       taxon = .data$species,
-      ma_adult_qty = rowSums(
-        dplyr::pick(dplyr::any_of(c("sub_males", "adult_males", "other_males")))
+      ma_adult_qty = dplyr::if_else(
+        .data$is_target_species,
+        rowSums(dplyr::pick(
+          dplyr::any_of(c("sub_males", "adult_males", "other_males"))
+        )),
+        .data$males
       ),
       unclass = pmax(
         .data$unclass,
