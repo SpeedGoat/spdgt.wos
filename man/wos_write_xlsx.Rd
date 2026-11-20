@@ -12,7 +12,7 @@ wos_write_xlsx(x, out_file)
 \item{out_file}{filepath where the data will be saved}
 }
 \value{
-The path to the exported file, invisibly
+The data passed into the function, invisibly
 }
 \description{
 Save spreadsheet file for Wildlife Observation System (WOS) import
