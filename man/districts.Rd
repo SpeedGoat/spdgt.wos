@@ -3,9 +3,9 @@
 \docType{data}
 \name{districts}
 \alias{districts}
-\title{districts data set}
+\title{Districts data set}
 \format{
-A named integer vector with 13 elements:
+A named numeric vector with 13 elements:
 \describe{
 \item{Cheyenne Headquarters}{0}
 \item{Pinedale Region}{1}
@@ -27,6 +27,6 @@ districts
 }
 \description{
 A named vector of district names and their corresponding numeric codes
-used in the Wyoming Online Survey (WOS) data template.
+used in the Wildlife Observation System (WOS) data template.
 }
 \keyword{datasets}

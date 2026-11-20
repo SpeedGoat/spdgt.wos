@@ -1,0 +1,7 @@
+linters: linters_with_defaults(
+    undesirable_function_linter(fun = c(
+      ifelse = "use dplyr::if_else()",
+      sapply = "use purrr::map_*() or vapply()"
+    ))
+  )
+exclusions: list("data-raw")

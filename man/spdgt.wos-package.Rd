@@ -11,6 +11,11 @@ This package provides functions to export data from SpeedGoat API and format it 
 \author{
 \strong{Maintainer}: Josh Nowak \email{josh.nowak@speedgoat.io}
 
+Authors:
+\itemize{
+  \item Eric Newkirk
+}
+
 Other contributors:
 \itemize{
   \item SpeedGoat [copyright holder, funder]
