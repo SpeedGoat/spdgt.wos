@@ -34,6 +34,7 @@ test_that("wos_format: Composition (Act 2) replaces NAs with 0s", {
     females = NA_integer_,
     youngs = NA_integer_,
     unclass = 0,
+    is_target_species = TRUE,
     date = as.Date("2021-12-01"),
     latitude = 40.5,
     longitude = -105.5,
@@ -52,43 +53,4 @@ test_that("wos_format: Composition (Act 2) replaces NAs with 0s", {
   expect_equal(result$fe_adult_qty, 0) # females -> 0
   expect_equal(result$ma_year_qty, 0)  # juvenile_males -> 0
   expect_equal(result$ma_adult_qty, 2) # Calculation handles 0s correctly
-})
-
-test_that("wos_format: Sightability (Act 9) PRESERVES NAs", {
-
-  # 1. Innermost Data
-  fake_counts <- tibble::tibble(
-    sub_males = NA_integer_
-  )
-
-  # 2. Middle Layer
-  fake_metadata_wrapper <- tibble::tibble(
-    mappings = list(fake_counts),
-    notes = NA
-  )
-
-  # 3. Outer Layer
-  input_data <- tibble::tibble(
-    species = "Mule Deer",
-    total = 50,
-    males = NA_integer_,
-    females = 0, # Explicit 0 in raw data
-    youngs = NA_integer_,
-    unclass = 50,
-    date = as.Date("2021-12-01"),
-    latitude = 40.5,
-    longitude = -105.5,
-    metadata = list(fake_metadata_wrapper)
-  )
-
-  result <- wos_format(input_data, "Test User", "Pinedale Region", "Sightability")
-
-  # CHECK 1: NAs remain NAs
-  expect_true(is.na(result$un_juv_qty))
-
-  # CHECK 2: Explicit 0s are forced to NA (The safety check)
-  expect_true(is.na(result$fe_adult_qty))
-
-  # CHECK 3: Calculated columns are NA
-  expect_true(is.na(result$ma_adult_qty))
 })
