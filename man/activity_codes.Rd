@@ -5,10 +5,10 @@
 \alias{activity_codes}
 \title{Activity codes data set}
 \format{
-A data frame with 2 rows and 2 variables:
+A data frame with 14 rows and 2 variables:
 \describe{
 \item{activity_code}{The activity code used in WOS data upload.}
-\item{activity_descr}{Textual dexcription corresponding to the code.}
+\item{activity_descr}{Textual description corresponding to the code.}
 }
 }
 \source{
@@ -19,6 +19,8 @@ activity_codes
 }
 \description{
 A data set describing activity codes used in the Wildlife Observation System
-(WOS) database. Currently unused but included for reference.
+(WOS) database, for reference. \code{wos_format()} reports target species
+observations under the survey type's code (see \code{survey_types}) and
+incidental observations as code 1, casual observation.
 }
 \keyword{datasets}

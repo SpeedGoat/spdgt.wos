@@ -9,19 +9,25 @@ wos_write_xlsx(x, out_file)
 \arguments{
 \item{x}{data frame of observations as returned by \code{wos_format()}}
 
-\item{out_file}{filepath where the data will be saved}
+\item{out_file}{filepath where the data will be saved; must end in \code{.xlsx}.
+An existing file is replaced.}
 }
 \value{
-The data passed into the function, invisibly
+\code{x}, invisibly
 }
 \description{
 Save spreadsheet file for Wildlife Observation System (WOS) import
 }
 \details{
-The WOS2 upload form only accepts .xslx files written in a certain way. This
-function uses the \code{openxslx2} package to ensure the output is compatible
-with the WOS upload web form. Calling this function when either of
-\code{openxslx2} or \code{withr} is not installed produces an error.
+The WOS2 upload form only accepts .xlsx files written in a certain way: the
+worksheet XML must have a line break between its declaration and the
+\verb{<worksheet>} element, which no spreadsheet writer in R produces. This
+function writes the workbook with \code{openxlsx2}, adds the line break, and
+re-zips the file with the \code{zip} package, so it works on any machine without
+Excel, Rtools or a system \code{zip} program.
+
+The file is written to a temporary location first and moved into place only
+once it is complete, so a failure never leaves a broken file at \code{out_file}.
 }
 \examples{
 \dontrun{

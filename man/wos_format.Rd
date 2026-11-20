@@ -2,7 +2,7 @@
 % Please edit documentation in R/wos_format.R
 \name{wos_format}
 \alias{wos_format}
-\title{Format observations for entry in WOS}
+\title{Format observations for Wildlife Observation System (WOS) import}
 \usage{
 wos_format(x, observer, district, survey_type)
 }
@@ -17,8 +17,28 @@ wos_format(x, observer, district, survey_type)
 survey types in the \code{survey_types} data set}
 }
 \value{
-A data frame formatted for WOS import
+A tibble with the columns of \code{wos_template}, one row per
+observation. When there is nothing to format a zero-row \code{wos_template} is
+returned with a warning.
 }
 \description{
-Format observations for entry in WOS
+Format observations for Wildlife Observation System (WOS) import
+}
+\details{
+Observations with no animals (\code{total} of zero or missing) are dropped. Every
+other observation becomes one WOS row, whether it is of the survey's target
+species or an incidental observation of another species.
+
+Target species observations are given the activity code of the survey type
+(see \code{survey_types}) and have their males split into adults
+(\code{ma_adult_qty}, the sum of sub-adult, adult and other males) and yearlings
+(\code{ma_year_qty}) from the classification \code{mappings}. Incidental observations
+are coded as casual observations (activity code 1) and report all males in
+\code{ma_adult_qty}. When an observation has no male breakdown, all of its males
+are reported in \code{ma_adult_qty}.
+
+Animals in \code{total} that are not classified as male, female or young are
+reported in \code{un_unk_qty}, so each row's counts add up to its total. A row
+whose classified counts exceed its total is kept as recorded, with a
+warning.
 }

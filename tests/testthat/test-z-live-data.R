@@ -9,7 +9,7 @@ test_that("the whole pipeline works with real data", {
     survey_type = "Composition",
     analysis_unit = "Snowy Range - Sierra Madre 545",
     bio_year = 2024,
-    observer = "Teal Cufaude",
+    observer = "Jane Doe",
     district = "Laramie Region",
     out_file = tf
   ))
@@ -46,7 +46,7 @@ test_that("the whole pipeline works with real data", {
     survey_type = "Sightability",
     analysis_unit = "Uinta 423",
     bio_year = 2025,
-    observer = "Jeff Short",
+    observer = "Jane Doe",
     district = "Green River Region",
     out_file = tf
   ))

@@ -29,10 +29,11 @@ survey types in the \code{survey_types} data set}
 
 \item{district}{the district name as found in the \code{districts} data set}
 
-\item{out_file}{filepath where the data will be saved}
+\item{out_file}{filepath where the data will be saved; must end in \code{.xlsx}.
+An existing file is replaced.}
 }
 \value{
-A data frame formatted for WOS import
+A tibble formatted for WOS import, as from \code{wos_format()}
 }
 \description{
 Read and format Wildlife Observation System (WOS) data
@@ -42,10 +43,9 @@ This function combines \code{wos_read()}, \code{wos_format()}, and (optionally)
 \code{wos_write_xlsx()} to read observations from the database and format them for
 WOS import in a single step.
 
-It performs input validation on all parameters to ensure they are correctly
-formatted and valid. If no observations are found for the specified
-parameters, a warning is issued and an empty WOS template data frame is
-returned.
+It validates every argument before calling the API. If no observations are
+found for the specified parameters, a warning is issued and an empty WOS
+template data frame is returned (and written to \code{out_file}, if given).
 
 For more details check the documentation for \code{wos_read()}, \code{wos_format()},
 and \code{wos_write_xlsx()}.

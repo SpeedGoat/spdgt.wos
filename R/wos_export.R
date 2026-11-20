@@ -9,15 +9,14 @@
 #' `wos_write_xlsx()` to read observations from the database and format them for
 #' WOS import in a single step.
 #'
-#' It performs input validation on all parameters to ensure they are correctly
-#' formatted and valid. If no observations are found for the specified
-#' parameters, a warning is issued and an empty WOS template data frame is
-#' returned.
+#' It validates every argument before calling the API. If no observations are
+#' found for the specified parameters, a warning is issued and an empty WOS
+#' template data frame is returned (and written to `out_file`, if given).
 #'
 #' For more details check the documentation for `wos_read()`, `wos_format()`,
 #' and `wos_write_xlsx()`.
 #'
-#' @returns A data frame formatted for WOS import
+#' @returns A tibble formatted for WOS import, as from `wos_format()`
 #' @export
 #'
 #' @examples
@@ -41,39 +40,14 @@ wos_export <- function(species,
                        out_file = NULL) {
 
   check_string_input(species, "species")
-  check_string_input(survey_type, "survey_type")
   check_string_input(analysis_unit, "analysis_unit")
-  check_string_input(district, "district")
-  check_string_input(observer, "observer")
+  check_bio_year(bio_year)
+  check_observer(observer)
+  check_district(district)
+  check_survey_type(survey_type)
 
   if (!is.null(out_file)) {
     check_string_input(out_file, "out_file")
-  }
-
-  # Check bio_year is a single number
-  if (!is.numeric(bio_year) || length(bio_year) != 1) {
-    cli::cli_abort("{.arg bio_year} must be a single numeric year (e.g. 2021).")
-  }
-
-  if (!grepl("^[A-Za-z'-]+\\s[A-Za-z'-]+$", trimws(observer))) {
-    cli::cli_abort(
-      c("Invalid {.arg observer} format: {.val {observer}}",
-        "i" = "Must be 'First Last' (e.g., 'Jane Doe', 'Mary-Anne O'Connor').")
-    )
-  }
-
-  if (!district %in% names(districts)) {
-    cli::cli_abort(
-      c("District {.val {district}} not found.",
-        "i" = "Available districts are in the {.code districts} dataset.")
-    )
-  }
-
-  if (!survey_type %in% survey_types$survey_type) {
-    cli::cli_abort(
-      c("Survey type {.val {survey_type}} not found.",
-        "i" = "Available survey_types are in the {.code survey_types} dataset.")
-    )
   }
 
   data <- wos_read(

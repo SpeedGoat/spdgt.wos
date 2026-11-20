@@ -1,8 +1,8 @@
-#' districts data set
+#' Districts data set
 #'
 #' A named vector of district names and their corresponding numeric codes
-#' used in the Wyoming Online Survey (WOS) data template.
-#' @format A named integer vector with 13 elements:
+#' used in the Wildlife Observation System (WOS) data template.
+#' @format A named numeric vector with 13 elements:
 #' \describe{
 #'   \item{Cheyenne Headquarters}{0}
 #'   \item{Pinedale Region}{1}
