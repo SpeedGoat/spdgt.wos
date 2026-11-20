@@ -8,7 +8,7 @@ skip_no_auth <- function() {
     }
   )
 
-  testtthat::skip_if_not(
+  testthat::skip_if_not(
     is_auth,
     "API unavailable or not authenticated"
   )
