@@ -30,3 +30,4 @@ Depends:
 LazyData: true
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/spdgt/r-minor: 4.5
