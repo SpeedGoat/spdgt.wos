@@ -1,12 +1,12 @@
-## code to prepare `wos_md_template` dataset goes here
+## code to prepare `wos_template` dataset goes here
 
-wos_md_template <- tibble::tibble(
+wos_template <- tibble::tibble(
   observer = character(),         # First Last
   district = integer(),           # e.g. 1
   obs_month = integer(),          # MM
   obs_year = integer(),           # YYYY
   obs_day = integer(),            # DD
-  taxon = character(),            # common name
+  taxon = character(),            # common/scientific name
   ma_adult_qty = integer(),       # adult males
   ma_year_qty = integer(),        # yearling males
   ma_juv_qty = integer(),         # juvenile males
@@ -50,4 +50,4 @@ wos_md_template <- tibble::tibble(
   field_notes = character()       # leave blank
 )
 
-usethis::use_data(wos_md_template, overwrite = TRUE)
+usethis::use_data(wos_template, overwrite = TRUE)

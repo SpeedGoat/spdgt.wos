@@ -4,13 +4,21 @@
 \alias{wos_export}
 \title{Read and format Wildlife Observation System (WOS) data}
 \usage{
-wos_export(species, survey_type, analysis_unit, bio_year, observer, district)
+wos_export(
+  species,
+  survey_type,
+  analysis_unit,
+  bio_year,
+  observer,
+  district,
+  out_file = NULL
+)
 }
 \arguments{
 \item{species}{the name of the species targeted by the survey}
 
 \item{survey_type}{the type of survey conducted; must match one of the
-survey types in the \code{survey_types} data set for the species}
+survey types in the \code{survey_types} data set}
 
 \item{analysis_unit}{the name of the analysis unit surveyed}
 
@@ -20,23 +28,27 @@ survey types in the \code{survey_types} data set for the species}
 \item{observer}{the name of the observer in "First Last" format}
 
 \item{district}{the district name as found in the \code{districts} data set}
+
+\item{out_file}{filepath where the data will be saved; must end in \code{.xlsx}.
+An existing file is replaced.}
 }
 \value{
-A data frame formatted for WOS import
+A tibble formatted for WOS import, as from \code{wos_format()}
 }
 \description{
 Read and format Wildlife Observation System (WOS) data
 }
 \details{
-This function combines \code{wos_read()} and \code{wos_format()} to read observations
-from the database and format them for WOS import in a single step.
+This function combines \code{wos_read()}, \code{wos_format()}, and (optionally)
+\code{wos_write_xlsx()} to read observations from the database and format them for
+WOS import in a single step.
 
-It performs input validation on all parameters to ensure they are correctly
-formatted and valid. If no observations are found for the specified
-parameters, a warning is issued and an empty WOS template data frame is
-returned.
+It validates every argument before calling the API. If no observations are
+found for the specified parameters, a warning is issued and an empty WOS
+template data frame is returned (and written to \code{out_file}, if given).
 
-For more details check the documentation for \code{wos_read()} and \code{wos_format()}.
+For more details check the documentation for \code{wos_read()}, \code{wos_format()},
+and \code{wos_write_xlsx()}.
 }
 \examples{
 \dontrun{
@@ -47,7 +59,7 @@ md_wos <- wos_export(
   analysis_unit = "Paintrock 207",
   bio_year = 2021,
   observer = "Jane Doe",
-  district = "Pinedale Region"
+  district = "Cody Region"
 )
 }
 }
